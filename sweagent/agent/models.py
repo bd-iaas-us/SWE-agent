@@ -22,6 +22,8 @@ from sweagent.agent.commands import Command
 from sweagent.utils.config import keys_config
 from sweagent.utils.log import get_logger
 
+from volcengine.maas import MaasService, MaasException, ChatRole
+
 logger = get_logger("api_models")
 
 _MAX_RETRIES = keys_config.get("SWE_AGENT_MODEL_MAX_RETRIES", 10)
@@ -921,8 +923,93 @@ def get_model(args: ModelArguments, commands: list[Command] | None = None):
         return DeepSeekModel(args, commands)
     elif args.model_name in TogetherModel.SHORTCUTS:
         return TogetherModel(args, commands)
+    elif args.model_name.startswith('skylark2') or args.model_name.startswith('chatglm'):
+        return VolcModel(args, commands)
     elif args.model_name == "instant_empty_submit":
         return InstantEmptySubmitTestModel(args, commands)
     else:
         msg = f"Invalid model name: {args.model_name}"
         raise ValueError(msg)
+
+
+class VolcModel(BaseModel):
+    MODELS = {
+        "chatglm-130b": {
+            "max_context": 16_385,
+            "cost_per_input_token": 1e-05,
+            "cost_per_output_token": 3e-06,
+        },
+        "skylark2-pro-4k": {
+            "max_context": 16_385,
+            "cost_per_input_token": 1e-05,
+            "cost_per_output_token": 3e-05,
+            "version": "1.2"
+        },
+        "skylark2-pro-32k": {
+            "max_context": 16_385,
+            "cost_per_input_token": 1e-05,
+            "cost_per_output_token": 3e-05,
+            "version": "1.1"
+        }         
+    }
+
+    SHORTCUTS = {
+        "skylark2-4k": "skylark2-pro-4k",
+        "skylark2-32k": "skylark2-pro-32k",
+    }
+
+    def __init__(self, args: ModelArguments, commands: list[Command]):
+        super().__init__(args, commands)
+
+        cfg = config.Config(os.path.join(os.getcwd(), "keys.cfg"))
+
+        if cfg["VOLC_REGION"] == 'cn':
+            self.client = MaasService('maas-api.ml-platform-cn-beijing.volces.com', 'cn-beijing')
+        elif cfg["VOLC_REGION"] == 'my':
+            self.client = MaasService('api.ml-maas-ap-southeast-1.volces.com', 'ap-southeast-1')
+            self.client.set_scheme("http")
+
+        self.client.set_ak(cfg["VOLC_API_AK"])
+        self.client.set_sk(cfg["VOLC_API_SK"])
+
+    def history_to_messages(
+        self, history: list[dict[str, str]], is_demonstration: bool = False
+    ) -> list[dict[str, str]]:
+        if is_demonstration:
+            history = [entry for entry in history if entry["role"] != "system"]
+            return '\n'.join([entry["content"] for entry in history])
+        # Return history components with just role, content fields
+        return [
+            {k: v for k, v in entry.items() if k in ["role", "content"]}
+            for entry in history
+        ]
+
+    @retry(
+        wait=wait_random_exponential(min=1, max=15),
+        reraise=True,
+        stop=stop_after_attempt(3),
+        retry=retry_if_not_exception_type((CostLimitExceededError, RuntimeError)),
+    )
+    def query(self, history: list[dict[str, str]]) -> str:
+        req = {
+            "model": {
+                "name": self.api_model,
+                "version": self.model_metadata["version"]
+            },
+            "parameters": {
+                "max_new_tokens": 1000,
+                "min_new_tokens": 1,
+                "temperature": 0.7,
+                "top_p": 0.9,
+                "top_k": 0,
+                "max_prompt_tokens": 4096
+            },
+            "messages": self.history_to_messages(history)
+        }
+
+        response=self.client.chat(req)
+
+        input_tokens = response.usage.prompt_tokens
+        output_tokens = response.usage.completion_tokens
+        self.update_stats(input_tokens, output_tokens)
+        return response.choice.message.content
