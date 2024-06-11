@@ -760,6 +760,7 @@ class Agent:
         self,
         setup_args: dict[str, Any],
         env: SWEEnv,
+        ailint_task,
         observation: str | None = None,
         traj_dir: Path | None = None,
         return_type: str | None = "info_trajectory",
@@ -848,6 +849,15 @@ class Agent:
                 self.save_trajectory(trajectory, traj_log_path, env_name=env.name, info=info)
             for hook in self.hooks:
                 hook.on_step_done(trajectory_step=trajectory_step, model_stats=model_stats)
+
+            logger.info(f'ailint_task: {ailint_task}')
+            ailint_task.append_history({
+                    "action": action,
+                    "observation": observation,
+                    "response": output,
+                    "state": state,
+                    "thought": thought,
+            })
 
         for hook in self.hooks:
             hook.on_run_done()
