@@ -305,7 +305,7 @@ class OpenPRHook(MainHook):
 
 
 class Main:
-    def __init__(self, args: ScriptArguments):
+    def __init__(self, args: ScriptArguments, ailint_task):
         if args.print_config:
             logger.info(f"📙 Arguments: {args.dumps_yaml()}")
         self.args = args
@@ -321,6 +321,8 @@ class Main:
         self.hooks: list[MainHook] = []
         for hook in default_hooks:
             self.add_hook(hook)
+        
+        self.ailint_task = ailint_task
 
     def add_hook(self, hook: MainHook):
         hook.on_init(args=self.args, agent=self.agent, env=self.env, traj_dir=self.traj_dir)
@@ -364,6 +366,7 @@ class Main:
             observation=observation,
             traj_dir=self.traj_dir,
             return_type="info_trajectory",
+            ailint_task=self.ailint_task
         )
         self._save_predictions(instance_id, info)
         for hook in self.hooks:
