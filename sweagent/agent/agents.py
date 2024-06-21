@@ -850,7 +850,6 @@ class Agent:
             for hook in self.hooks:
                 hook.on_step_done(trajectory_step=trajectory_step, model_stats=model_stats)
 
-            logger.info(f'ailint_task: {ailint_task}')
             ailint_task.append_history({
                     "action": action,
                     "observation": observation,

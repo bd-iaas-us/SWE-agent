@@ -1037,16 +1037,20 @@ class VolcModel(BaseModel):
     def __init__(self, args: ModelArguments, commands: list[Command]):
         super().__init__(args, commands)
 
-        cfg = config.Config(os.path.join(os.getcwd(), "keys.cfg"))
 
-        if cfg["VOLC_REGION"] == 'cn':
+        volc_region = os.environ.get('VOLC_REGION')
+        volc_api_ak = os.environ.get('VOLC_API_AK')
+        volc_api_sk = os.environ.get('VOLC_API_SK')
+
+        if volc_region == 'cn':
             self.client = MaasService('maas-api.ml-platform-cn-beijing.volces.com', 'cn-beijing')
-        elif cfg["VOLC_REGION"] == 'my':
+        elif volc_region  == 'my':
             self.client = MaasService('api.ml-maas-ap-southeast-1.volces.com', 'ap-southeast-1')
             self.client.set_scheme("http")
 
-        self.client.set_ak(cfg["VOLC_API_AK"])
-        self.client.set_sk(cfg["VOLC_API_SK"])
+        
+        self.client.set_ak(volc_api_ak)
+        self.client.set_sk(volc_api_sk)
 
     def history_to_messages(
         self, history: list[dict[str, str]], is_demonstration: bool = False
