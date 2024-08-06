@@ -305,7 +305,7 @@ class OpenPRHook(MainHook):
 
 
 class Main:
-    def __init__(self, args: ScriptArguments, ailint_task):
+    def __init__(self, args: ScriptArguments):
         self.traj_dir = Path("trajectories") / Path(getuser()) / args.run_name
         self.traj_dir.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.datetime.now().strftime("%y%m%d%H%M%S")
@@ -325,8 +325,6 @@ class Main:
         self.hooks: list[MainHook] = []
         for hook in default_hooks:
             self.add_hook(hook)
-        
-        self.ailint_task = ailint_task
 
     def add_hook(self, hook: MainHook):
         hook.on_init(args=self.args, agent=self.agent, env=self.env, traj_dir=self.traj_dir)
@@ -369,8 +367,7 @@ class Main:
             env=self.env,
             observation=observation,
             traj_dir=self.traj_dir,
-            return_type="info_trajectory",
-            ailint_task=self.ailint_task
+            return_type="info_trajectory"
         )
         self._save_predictions(instance_id, info)
         for hook in self.hooks:
