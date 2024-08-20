@@ -365,12 +365,6 @@ class SWEEnv(gym.Env):
 
         system = self.communicate("uname -s").strip().lower()
         arch = self.communicate("uname -m").strip().lower()
-        if system == "linux" and arch == "x86_64":
-            self.communicate_with_handling(
-                "apt update; apt install build-essential -y",
-                error_msg="Failed to install build-essential",
-                timeout_duration=LONG_TIMEOUT,
-            )
 
         # Call install environment helper function if specified
         if self.install_environment:
