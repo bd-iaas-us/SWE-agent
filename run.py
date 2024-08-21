@@ -68,6 +68,31 @@ python run.py --model_name "gpt4" --data_path "/path/to/my_issue.md" --repo_path
 logger = get_logger("swe-agent-run")
 logging.getLogger("simple_parsing").setLevel(logging.WARNING)
 
+tasks_to_run = [
+    "django__django-11039",
+    "django__django-11283",
+    "django__django-11564",
+    "django__django-11630",
+    "django__django-13265",
+    "django__django-13315",
+    "django__django-13925",
+    "django__django-14411",
+    "django__django-15738",
+    "django__django-15819",
+    "django__django-15902",
+    "django__django-17087",
+    "psf__requests-3362",
+    "pydata__xarray-4248",
+    "pylint-dev__pylint-7114",
+    "pytest-dev__pytest-11148",
+    "pytest-dev__pytest-5103",
+    "pytest-dev__pytest-5221",
+    "sphinx-doc__sphinx-7738",
+    "sympy__sympy-11870",
+    "sympy__sympy-14308",
+    "sympy__sympy-19487",
+    "psf__requests-863"
+  ]
 
 @dataclass(frozen=True)
 class ActionsArguments(FlattenedAccess, FrozenSerializable):
@@ -106,7 +131,7 @@ class ScriptArguments(FlattenedAccess, FrozenSerializable):
     # Raise unhandled exceptions during the run (useful for debugging)
     raise_exceptions: bool = False
     # Dump the entire config to the log
-    print_config: bool = True
+    print_config: bool = False
 
     @property
     def run_name(self) -> str:
@@ -377,6 +402,8 @@ class Main:
         for hook in self.hooks:
             hook.on_start()
         for index in range(len(self.env.data)):
+            if self.env.data[index]["instance_id"] not in tasks_to_run:
+                continue
             try:
                 self.run(index)
             except _ContinueLoop:
@@ -478,7 +505,7 @@ def get_args(args=None) -> ScriptArguments:
         environment=EnvironmentArguments(
             image_name="sweagent/swe-agent:latest",
             data_path="princeton-nlp/SWE-bench_Lite",
-            split="dev",
+            split="test",
             verbose=True,
             install_environment=True,
             cache_task_images=False,
