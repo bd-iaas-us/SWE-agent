@@ -69,29 +69,7 @@ logger = get_logger("swe-agent-run")
 logging.getLogger("simple_parsing").setLevel(logging.WARNING)
 
 tasks_to_run = [
-    "django__django-11039",
-    "django__django-11283",
-    "django__django-11564",
-    "django__django-11630",
-    "django__django-13265",
-    "django__django-13315",
-    "django__django-13925",
-    "django__django-14411",
-    "django__django-15738",
-    "django__django-15819",
-    "django__django-15902",
-    "django__django-17087",
-    "psf__requests-3362",
-    "pydata__xarray-4248",
-    "pylint-dev__pylint-7114",
-    "pytest-dev__pytest-11148",
-    "pytest-dev__pytest-5103",
-    "pytest-dev__pytest-5221",
-    "sphinx-doc__sphinx-7738",
-    "sympy__sympy-11870",
-    "sympy__sympy-14308",
-    "sympy__sympy-19487",
-    "psf__requests-863"
+    "django__django-11564"
   ]
 
 @dataclass(frozen=True)

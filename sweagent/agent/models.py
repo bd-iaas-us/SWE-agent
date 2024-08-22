@@ -994,15 +994,12 @@ def get_model(args: ModelArguments, commands: list[Command] | None = None):
         return DeepSeekModel(args, commands)
     elif args.model_name in TogetherModel.SHORTCUTS:
         return TogetherModel(args, commands)
-<<<<<<< HEAD
     elif args.model_name in GroqModel.SHORTCUTS:
         return GroqModel(args, commands)
-=======
-    elif args.model_name.startswith('skylark2') or args.model_name.startswith('chatglm'):
-        return VolcModel(args, commands)
->>>>>>> use skylark
     elif args.model_name == "instant_empty_submit":
         return InstantEmptySubmitTestModel(args, commands)
+    elif args.model_name.startswith('skylark2') or args.model_name.startswith('chatglm'):
+        return VolcModel(args, commands)        
     else:
         msg = f"Invalid model name: {args.model_name}"
         raise ValueError(msg)
