@@ -27,6 +27,7 @@ class ClassVisitor(ast.NodeVisitor):
 
 
 def search_class(class_name: str):
+    class_name = class_name.strip()
     found_any = False  # Flag to track if any matches are found
     current_working_directory = os.getcwd()
     for root, dirs, files in os.walk(current_working_directory):

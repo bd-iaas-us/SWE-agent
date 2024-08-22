@@ -20,6 +20,8 @@ import sys
 
 
 def search_method_in_class(method_name: str, class_name: str):
+    method_name = method_name.strip()
+    class_name = class_name.strip()
     current_working_directory = os.getcwd()
 
     found_any = False  # Flag to track if any matches are found
