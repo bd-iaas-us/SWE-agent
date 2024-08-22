@@ -19,6 +19,8 @@ import sys
 
 
 def search_code_in_file(code_str: str, file_path: str):
+    code_str = code_str.strip()
+    file_path = file_path.strip()
     current_working_directory = os.getcwd()
     full_file_path = os.path.join(current_working_directory, file_path)
 

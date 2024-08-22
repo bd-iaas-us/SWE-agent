@@ -19,6 +19,8 @@ import sys
 
 
 def search_method_in_file(method_name: str, file_path: str):
+    method_name = method_name.strip()
+    file_path = file_path.strip()
     current_working_directory = os.getcwd()
     full_file_path = os.path.join(current_working_directory, file_path)
 

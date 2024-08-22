@@ -15,6 +15,7 @@ import sys
 
 
 def search_code_in_codebase(code_str: str):
+    code_str = code_str.strip()
     current_working_directory = os.getcwd()
     snippet_tree = ast.parse(code_str).body
 
