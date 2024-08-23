@@ -110,8 +110,6 @@ command_files:
 - config/commands/search_method_in_file.py
 - config/commands/search_method_in_class.py
 - config/commands/search_method_in_codebase.py
-- config/commands/search_code_in_codebase.py
-- config/commands/search_code_in_file.py
 parse_command: ParseCommandDetailed
 history_processor: Last5Observations
 demonstrations:
