@@ -68,9 +68,6 @@ python run.py --model_name "gpt4" --data_path "/path/to/my_issue.md" --repo_path
 logger = get_logger("swe-agent-run")
 logging.getLogger("simple_parsing").setLevel(logging.WARNING)
 
-tasks_to_run = [
-    "django__django-11564"
-  ]
 
 @dataclass(frozen=True)
 class ActionsArguments(FlattenedAccess, FrozenSerializable):
@@ -380,8 +377,6 @@ class Main:
         for hook in self.hooks:
             hook.on_start()
         for index in range(len(self.env.data)):
-            if self.env.data[index]["instance_id"] not in tasks_to_run:
-                continue
             try:
                 self.run(index)
             except _ContinueLoop:
